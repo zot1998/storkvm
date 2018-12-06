@@ -6,10 +6,14 @@ import ply.lex as lex
 import ply.yacc as yacc
 
 
+tokens_reserved ={
+	'IF':'IF',
+	'ELSE':'ELSE',
+}
 
-tokens = (
+tokens = [
     'OBJECT',
-    'EQUAL',
+    'EQUAL1',
     'NUMBER',
     'LPAREN',
     'RPAREN',
@@ -20,29 +24,35 @@ tokens = (
     'DOT',
     'AND',
     'OR',
-)
+    'COMMENT',
+] + tokens_reserved.values()
 
 literals = ['=', '+', '-', '*', '/', '(', ')',',']
 
 # Tokens
-t_OBJECT = r'[A-Z][A-Z0-9]*'
-t_EQUAL  = r'\='
+t_EQUAL1 = r'\:\='
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
-t_PLUS = r'\+'
-t_MINUS = r'\-'
-t_TIMES = r'\*'
+t_PLUS   = r'\+'
+t_MINUS  = r'\-'
+t_TIMES  = r'\*'
 t_DIVIDE = r'\/'
 t_DOT    = r'\.'
-t_AND    = r' AND '
-t_OR     = r' OR '
+t_AND    = r'(?<=[\t ])AND(?=[\t ])'
+t_OR     = r'(?<=[\t ])OR(?=[\t ])'
+
+def t_OBJECT(t):
+    r'[A-Z][A-Z0-9]*'
+    t.type = tokens_reserved.get(t.value, 'OBJECT')
+    return t
 
 def t_NUMBER(t):
     r'\d+'
     t.value = int(t.value)
     return t
 
-t_ignore = "//.*"
+t_ignore_COMMENT = "//.*"
+t_ignore = '[\t ]'
 
 
 def t_newline(t):
@@ -62,40 +72,32 @@ precedence = (
     ('left', 'TIMES', 'DIVIDE'),
     )
 
-
-names = { }
-
-def p_statement_assign(p):
-    'statement : NAME "=" expression'
-    names[p[1]] = p[3]
-
-def p_statement_expr(p):
-    'statement : expression'
-    print("----")
-    print(p[1])
-
 def p_expression_binop(p):
     '''expression : expression '+' expression
                   | expression '-' expression
                   | expression '*' expression
-                  | expression '/' expression'''
-    if p[2] == '+'  : p[0] = p[1] + p[3]
-    elif p[2] == '-': p[0] = p[1] - p[3]
-    elif p[2] == '*': p[0] = p[1] * p[3]
-    elif p[2] == '/': p[0] = p[1] / p[3]
+                  | expression '/' expression
+                  | NUMBER '''
+    print('p type={}'.format(type(p)))
+    print('p[0]={}'.format(type(p[0])))
+    print('p[1]={}'.format(type(p[1])))
+
+    if p[2] == '+'  : 
+    	p[0] = p[1] + p[3]
+    elif p[2] == '-': 
+    	p[0] = p[1] - p[3]
+    elif p[2] == '*': 
+    	p[0] = p[1] * p[3]
+    elif p[2] == '/': 
+    	p[0] = p[1] / p[3]
+
+    print('p type={}'.format(type(p)))
+    print('p[0]={}'.format(type(p[0])))
+    print('p[1]={}'.format(type(p[1])))
+    print('p[2]={}'.format(type(p[2])))
+    print('p[3]={}'.format(type(p[3])))
 
 
-def p_expression_number(p):
-    "expression : NUMBER"
-    p[0] = p[1]
-
-def p_expression_name(p):
-    "expression : NAME"
-    try:
-        p[0] = names[p[1]]
-    except LookupError:
-        print("Undefined name '%s'" % p[1])
-        p[0] = 0
 
 def p_error(p):
     if p:
@@ -107,8 +109,9 @@ lex.lex()
 yacc.yacc()
 
 context = '''
-a = x
-A = B(a, 5) + 20
+5*3
+//a = x
+//A = B(a, 5) + 20*2
 '''
-yacc.parse(context)
+yacc.parse('5* 3')
 
