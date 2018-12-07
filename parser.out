@@ -10,7 +10,6 @@ Unused terminals:
     OBJECT
     ELSE
     EQUAL1
-    PLUS
     LPAREN
     TIMES
     MINUS
@@ -20,7 +19,7 @@ Unused terminals:
 Grammar
 
 Rule 0     S' -> expression
-Rule 1     expression -> expression + expression
+Rule 1     expression -> expression PLUS expression
 Rule 2     expression -> expression - expression
 Rule 3     expression -> expression * expression
 Rule 4     expression -> expression / expression
@@ -29,7 +28,6 @@ Rule 5     expression -> NUMBER
 Terminals, with rules where they appear
 
 *                    : 3
-+                    : 1
 -                    : 2
 /                    : 4
 AND                  : 
@@ -44,7 +42,7 @@ MINUS                :
 NUMBER               : 5
 OBJECT               : 
 OR                   : 
-PLUS                 : 
+PLUS                 : 1
 RPAREN               : 
 TIMES                : 
 error                : 
@@ -58,7 +56,7 @@ Parsing method: LALR
 state 0
 
     (0) S' -> . expression
-    (1) expression -> . expression + expression
+    (1) expression -> . expression PLUS expression
     (2) expression -> . expression - expression
     (3) expression -> . expression * expression
     (4) expression -> . expression / expression
@@ -72,7 +70,7 @@ state 1
 
     (5) expression -> NUMBER .
 
-    +               reduce using rule 5 (expression -> NUMBER .)
+    PLUS            reduce using rule 5 (expression -> NUMBER .)
     -               reduce using rule 5 (expression -> NUMBER .)
     *               reduce using rule 5 (expression -> NUMBER .)
     /               reduce using rule 5 (expression -> NUMBER .)
@@ -82,21 +80,21 @@ state 1
 state 2
 
     (0) S' -> expression .
-    (1) expression -> expression . + expression
+    (1) expression -> expression . PLUS expression
     (2) expression -> expression . - expression
     (3) expression -> expression . * expression
     (4) expression -> expression . / expression
 
-    +               shift and go to state 4
-    -               shift and go to state 3
+    PLUS            shift and go to state 3
+    -               shift and go to state 4
     *               shift and go to state 5
     /               shift and go to state 6
 
 
 state 3
 
-    (2) expression -> expression - . expression
-    (1) expression -> . expression + expression
+    (1) expression -> expression PLUS . expression
+    (1) expression -> . expression PLUS expression
     (2) expression -> . expression - expression
     (3) expression -> . expression * expression
     (4) expression -> . expression / expression
@@ -108,8 +106,8 @@ state 3
 
 state 4
 
-    (1) expression -> expression + . expression
-    (1) expression -> . expression + expression
+    (2) expression -> expression - . expression
+    (1) expression -> . expression PLUS expression
     (2) expression -> . expression - expression
     (3) expression -> . expression * expression
     (4) expression -> . expression / expression
@@ -122,7 +120,7 @@ state 4
 state 5
 
     (3) expression -> expression * . expression
-    (1) expression -> . expression + expression
+    (1) expression -> . expression PLUS expression
     (2) expression -> . expression - expression
     (3) expression -> . expression * expression
     (4) expression -> . expression / expression
@@ -135,7 +133,7 @@ state 5
 state 6
 
     (4) expression -> expression / . expression
-    (1) expression -> . expression + expression
+    (1) expression -> . expression PLUS expression
     (2) expression -> . expression - expression
     (3) expression -> . expression * expression
     (4) expression -> . expression / expression
@@ -147,71 +145,67 @@ state 6
 
 state 7
 
-    (2) expression -> expression - expression .
-    (1) expression -> expression . + expression
+    (1) expression -> expression PLUS expression .
+    (1) expression -> expression . PLUS expression
     (2) expression -> expression . - expression
     (3) expression -> expression . * expression
     (4) expression -> expression . / expression
 
-  ! shift/reduce conflict for + resolved as shift
+    PLUS            reduce using rule 1 (expression -> expression PLUS expression .)
+    -               reduce using rule 1 (expression -> expression PLUS expression .)
+    *               reduce using rule 1 (expression -> expression PLUS expression .)
+    /               reduce using rule 1 (expression -> expression PLUS expression .)
+    $end            reduce using rule 1 (expression -> expression PLUS expression .)
+
+  ! PLUS            [ shift and go to state 3 ]
+  ! -               [ shift and go to state 4 ]
+  ! *               [ shift and go to state 5 ]
+  ! /               [ shift and go to state 6 ]
+
+
+state 8
+
+    (2) expression -> expression - expression .
+    (1) expression -> expression . PLUS expression
+    (2) expression -> expression . - expression
+    (3) expression -> expression . * expression
+    (4) expression -> expression . / expression
+
+  ! shift/reduce conflict for PLUS resolved as shift
   ! shift/reduce conflict for - resolved as shift
   ! shift/reduce conflict for * resolved as shift
   ! shift/reduce conflict for / resolved as shift
     $end            reduce using rule 2 (expression -> expression - expression .)
-    +               shift and go to state 4
-    -               shift and go to state 3
+    PLUS            shift and go to state 3
+    -               shift and go to state 4
     *               shift and go to state 5
     /               shift and go to state 6
 
-  ! +               [ reduce using rule 2 (expression -> expression - expression .) ]
+  ! PLUS            [ reduce using rule 2 (expression -> expression - expression .) ]
   ! -               [ reduce using rule 2 (expression -> expression - expression .) ]
   ! *               [ reduce using rule 2 (expression -> expression - expression .) ]
   ! /               [ reduce using rule 2 (expression -> expression - expression .) ]
 
 
-state 8
-
-    (1) expression -> expression + expression .
-    (1) expression -> expression . + expression
-    (2) expression -> expression . - expression
-    (3) expression -> expression . * expression
-    (4) expression -> expression . / expression
-
-  ! shift/reduce conflict for + resolved as shift
-  ! shift/reduce conflict for - resolved as shift
-  ! shift/reduce conflict for * resolved as shift
-  ! shift/reduce conflict for / resolved as shift
-    $end            reduce using rule 1 (expression -> expression + expression .)
-    +               shift and go to state 4
-    -               shift and go to state 3
-    *               shift and go to state 5
-    /               shift and go to state 6
-
-  ! +               [ reduce using rule 1 (expression -> expression + expression .) ]
-  ! -               [ reduce using rule 1 (expression -> expression + expression .) ]
-  ! *               [ reduce using rule 1 (expression -> expression + expression .) ]
-  ! /               [ reduce using rule 1 (expression -> expression + expression .) ]
-
-
 state 9
 
     (3) expression -> expression * expression .
-    (1) expression -> expression . + expression
+    (1) expression -> expression . PLUS expression
     (2) expression -> expression . - expression
     (3) expression -> expression . * expression
     (4) expression -> expression . / expression
 
-  ! shift/reduce conflict for + resolved as shift
+  ! shift/reduce conflict for PLUS resolved as shift
   ! shift/reduce conflict for - resolved as shift
   ! shift/reduce conflict for * resolved as shift
   ! shift/reduce conflict for / resolved as shift
     $end            reduce using rule 3 (expression -> expression * expression .)
-    +               shift and go to state 4
-    -               shift and go to state 3
+    PLUS            shift and go to state 3
+    -               shift and go to state 4
     *               shift and go to state 5
     /               shift and go to state 6
 
-  ! +               [ reduce using rule 3 (expression -> expression * expression .) ]
+  ! PLUS            [ reduce using rule 3 (expression -> expression * expression .) ]
   ! -               [ reduce using rule 3 (expression -> expression * expression .) ]
   ! *               [ reduce using rule 3 (expression -> expression * expression .) ]
   ! /               [ reduce using rule 3 (expression -> expression * expression .) ]
@@ -220,22 +214,22 @@ state 9
 state 10
 
     (4) expression -> expression / expression .
-    (1) expression -> expression . + expression
+    (1) expression -> expression . PLUS expression
     (2) expression -> expression . - expression
     (3) expression -> expression . * expression
     (4) expression -> expression . / expression
 
-  ! shift/reduce conflict for + resolved as shift
+  ! shift/reduce conflict for PLUS resolved as shift
   ! shift/reduce conflict for - resolved as shift
   ! shift/reduce conflict for * resolved as shift
   ! shift/reduce conflict for / resolved as shift
     $end            reduce using rule 4 (expression -> expression / expression .)
-    +               shift and go to state 4
-    -               shift and go to state 3
+    PLUS            shift and go to state 3
+    -               shift and go to state 4
     *               shift and go to state 5
     /               shift and go to state 6
 
-  ! +               [ reduce using rule 4 (expression -> expression / expression .) ]
+  ! PLUS            [ reduce using rule 4 (expression -> expression / expression .) ]
   ! -               [ reduce using rule 4 (expression -> expression / expression .) ]
   ! *               [ reduce using rule 4 (expression -> expression / expression .) ]
   ! /               [ reduce using rule 4 (expression -> expression / expression .) ]
@@ -243,19 +237,15 @@ state 10
 WARNING: 
 WARNING: Conflicts:
 WARNING: 
-WARNING: shift/reduce conflict for + in state 7 resolved as shift
-WARNING: shift/reduce conflict for - in state 7 resolved as shift
-WARNING: shift/reduce conflict for * in state 7 resolved as shift
-WARNING: shift/reduce conflict for / in state 7 resolved as shift
-WARNING: shift/reduce conflict for + in state 8 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 8 resolved as shift
 WARNING: shift/reduce conflict for - in state 8 resolved as shift
 WARNING: shift/reduce conflict for * in state 8 resolved as shift
 WARNING: shift/reduce conflict for / in state 8 resolved as shift
-WARNING: shift/reduce conflict for + in state 9 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 9 resolved as shift
 WARNING: shift/reduce conflict for - in state 9 resolved as shift
 WARNING: shift/reduce conflict for * in state 9 resolved as shift
 WARNING: shift/reduce conflict for / in state 9 resolved as shift
-WARNING: shift/reduce conflict for + in state 10 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 10 resolved as shift
 WARNING: shift/reduce conflict for - in state 10 resolved as shift
 WARNING: shift/reduce conflict for * in state 10 resolved as shift
 WARNING: shift/reduce conflict for / in state 10 resolved as shift
