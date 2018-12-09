@@ -1,25 +1,18 @@
 import os
 import sys
 import ply
-from ply_rule import rule
+from ply_excute import ply_excute
 
 curdir = os.path.dirname(os.path.abspath(__file__))
 if curdir not in sys.path:
     sys.path.append(curdir)
 
 
-context = '''
-AA := 55 + 3
-//a = x
-//A = B(a, 5) + 20*2
-'''
+context = ''' A := CALL(PARA0,PARA1, 5,DD)'''
 
-rule = rule(context)
-rc,a,b,c = rule.lex()
-if rc:
-    rule.yacc()
-else:
-    print(rc,a,b,c)
+cc = ply_excute(context)
+cc.run()
+
 
 
 

@@ -1,15 +1,15 @@
 import os
 import sys
-from ply_object import object
+
+curdir = os.path.dirname(os.path.abspath(__file__))
+if curdir not in sys.path:
+    sys.path.append(curdir)
+
+from ply_object import object, ID, NUMBER, METHOD, AST
 from ply_object import PlyException
 
 import ply.lex as lex
 import ply.yacc as yacc
-
-
-
-
-
 
 
 tokens_reserved ={
@@ -18,7 +18,8 @@ tokens_reserved ={
 }
 
 tokens = [
-    'OBJECT',
+    'ID',
+#    'METHOD',
     'EQUAL1',
     'NUMBER',
     'LPAREN',
@@ -30,35 +31,44 @@ tokens = [
     'DOT',
     'AND',
     'OR',
+    'COMMA',
     'COMMENT',
+    'SEMICOLON',
 ] + tokens_reserved.values()
 
 
 # Tokens
-t_EQUAL1 = r'\:\='
+t_EQUAL1 = r':='
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
 t_PLUS   = r'\+'
 t_MINUS  = r'-'
 t_TIMES  = r'\*'
-t_DIVIDE = r'/'
+t_DIVIDE = r'\/'
 t_DOT    = r'\.'
 t_AND    = r'(?<=[\t ])AND(?=[\t ])'
 t_OR     = r'(?<=[\t ])OR(?=[\t ])'
+t_COMMA  = r','
 
-def t_OBJECT(t):
+def t_ID(t):
     r'[A-Z][A-Z0-9]*'
-    t.type = tokens_reserved.get(t.value, 'OBJECT')
+    t.type = tokens_reserved.get(t.value, 'ID')
+    t.value = ID(t.value)
+
     return t
 
+#def t_METHOD(t):
+#    r'[A-Z][A-Z0-9]*(?=\()'
+#    t.value = METHOD(t.value)
+#    return t
+
 def t_NUMBER(t):
-    r'\d+'
-    t.value = int(t.value)
+    r'\d+(\.\d+)*'
+    t.value = NUMBER(float(t.value))
     return t
 
 t_ignore_COMMENT = "//.*"
 t_ignore = '[\t ]'
-
 
 def t_newline(t):
     r'\n+'
@@ -75,38 +85,58 @@ literals = ['=', '+', '-', '*', '/', '(', ')',',']
 
 
 precedence = (
+    #('nonassoc', 'LESSTHAN', 'GREATERTHAN'),
+    ('left', 'EQUAL1'),
     ('left', 'AND', 'OR'),    
     ('left', 'PLUS', 'MINUS'),
     ('left', 'TIMES', 'DIVIDE'),
     ('left', 'LPAREN', 'RPAREN'),
     )
+# XXX(a,b)
+def p_expression_method(p):
+    '''expression : expression  ID     RPAREN
+                 | expression NUMBER   RPAREN
+                 | expression ID      COMMA
+                 | expression NUMBER  COMMA
+                 | expression RPAREN
+                 | ID LPAREN
+    '''
 
-def p_expression_binop(p):
-    '''expression : expression PLUS expression
-                  | expression '-' expression
-                  | expression '*' expression
-                  | expression '/' expression
-                  | NUMBER '''
-    #print('p type={}'.format(type(p)))
-    #print('p[0]={}'.format(type(p[0])))
-    #print('p[1]={}'.format(type(p[1])))
+    if  len(p) == 3:
+        if p[2] == '(':
+            ast = AST('FUNC', p[1], None)
+            p[0] = {
+                'root':ast,
+                'current':ast,
+            }
 
-    if (len(p) > 2):
-    	if p[2] == '+':
-    		p[0] = p[1] + p[3]
-    	elif p[2] == '-': 
-    		p[0] = p[1] - p[3]
-    	elif p[2] == '*': 
-    		p[0] = p[1] * p[3]
-    	elif p[2] == '/': 
-    		p[0] = p[1] / p[3]
-    else:
-    	p[0] = p[1]
+            print("####_(")
+        elif p[2] == ')':
+            p[0] = p[1]['root']
+            print("####_)")
+    elif len(p) == 4:
+        if p[3] == ',':
+            print("####_,")
+            ast = AST('PARA', p[2], None)
+
+            p[1]['current'].setright(ast)
+            p[1]['current'] = ast
+            p[0] = p[1]
+
+        elif p[3] == ')':
+            print("####3:" + p[2].getname())
+            p[1]['current'].setright(p[2])
+            p[0] = p[1]['root']
+            print("####_)")
 
 
 
 
 
+def p_assignment_equal1(p):
+    '''assignment : ID EQUAL1 expression'''
+    print("AST :=----{},{}".format(type(p[1]), type(p[3])))
+    p[0] = AST(':=', p[1], p[3])
 
 def p_error(p):
     if p:
@@ -115,37 +145,6 @@ def p_error(p):
         print(" *** Syntax error at EOF")
 
 
-class rule(object):
-    def __init__(self, context):
-        object.__init__(self)
-        self._lexer = lex.lex()
-        self._yacer = yacc.yacc()
-        self._context = context
-
-    def reset(self):
-        pass
-
-    def lex(self):
-        try:
-            self._lexer.input(self._context)
-            while True:
-                tok = self._lexer.token()
-                if not tok: 
-                    break
-        except PlyException as e:
-            return False, e._lineno, e._pos, e._msg
-        return True, None, None, None
-
-    def yacc(self):
-        #try:
-        if True:
-            result =  self._yacer.parse(self._context)
-            print(result)
-        #except:
-        #    print("#####")
-
-    def run(self):
-        pass
 
         
 
