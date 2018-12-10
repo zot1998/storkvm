@@ -6,9 +6,9 @@ Unused terminals:
     COMMENT
     DIVIDE
     SEMICOLON
+    LESS
     IF
     ELSE
-    EQUALS
     PLUS
     TIMES
     MINUS
@@ -17,174 +17,177 @@ Unused terminals:
 
 Grammar
 
-Rule 0     S' -> condition_action
-Rule 1     condition_action -> method COMMA ID
-Rule 2     method -> method_append para RPAREN
-Rule 3     method -> method_append RPAREN
-Rule 4     method_append -> method_append para COMMA
-Rule 5     method_append -> method_start
-Rule 6     method_start -> ID LPAREN
-Rule 7     para -> ID
-Rule 8     para -> NUMBER
+Rule 0     S' -> assignment
+Rule 1     assignment -> ID EQUALS method
+Rule 2     condition_action -> method COMMA ID
+Rule 3     method -> method_append para RPAREN
+Rule 4     method -> method_append RPAREN
+Rule 5     method_append -> method_append para COMMA
+Rule 6     method_append -> method_start
+Rule 7     method_start -> ID LPAREN
+Rule 8     para -> ID
+Rule 9     para -> NUMBER
 
 Terminals, with rules where they appear
 
 AND                  : 
-COMMA                : 1 4
+COMMA                : 2 5
 COMMENT              : 
 DIVIDE               : 
 DOT                  : 
 ELSE                 : 
-EQUALS               : 
-ID                   : 1 6 7
+EQUALS               : 1
+ID                   : 1 2 7 8
 IF                   : 
-LPAREN               : 6
+LESS                 : 
+LPAREN               : 7
 MINUS                : 
-NUMBER               : 8
+NUMBER               : 9
 OR                   : 
 PLUS                 : 
-RPAREN               : 2 3
+RPAREN               : 3 4
 SEMICOLON            : 
 TIMES                : 
 error                : 
 
 Nonterminals, with rules where they appear
 
-condition_action     : 0
-method               : 1
-method_append        : 2 3 4
-method_start         : 5
-para                 : 2 4
+assignment           : 0
+condition_action     : 
+method               : 1 2
+method_append        : 3 4 5
+method_start         : 6
+para                 : 3 5
 
 Parsing method: LALR
 
 state 0
 
-    (0) S' -> . condition_action
-    (1) condition_action -> . method COMMA ID
-    (2) method -> . method_append para RPAREN
-    (3) method -> . method_append RPAREN
-    (4) method_append -> . method_append para COMMA
-    (5) method_append -> . method_start
-    (6) method_start -> . ID LPAREN
+    (0) S' -> . assignment
+    (1) assignment -> . ID EQUALS method
 
     ID              shift and go to state 2
 
-    method_start                   shift and go to state 1
-    condition_action               shift and go to state 4
-    method                         shift and go to state 5
-    method_append                  shift and go to state 3
+    assignment                     shift and go to state 1
 
 state 1
 
-    (5) method_append -> method_start .
+    (0) S' -> assignment .
 
-    RPAREN          reduce using rule 5 (method_append -> method_start .)
-    ID              reduce using rule 5 (method_append -> method_start .)
-    NUMBER          reduce using rule 5 (method_append -> method_start .)
 
 
 state 2
 
-    (6) method_start -> ID . LPAREN
+    (1) assignment -> ID . EQUALS method
 
-    LPAREN          shift and go to state 6
+    EQUALS          shift and go to state 3
 
 
 state 3
 
-    (2) method -> method_append . para RPAREN
-    (3) method -> method_append . RPAREN
-    (4) method_append -> method_append . para COMMA
-    (7) para -> . ID
-    (8) para -> . NUMBER
+    (1) assignment -> ID EQUALS . method
+    (3) method -> . method_append para RPAREN
+    (4) method -> . method_append RPAREN
+    (5) method_append -> . method_append para COMMA
+    (6) method_append -> . method_start
+    (7) method_start -> . ID LPAREN
 
-    RPAREN          shift and go to state 7
-    ID              shift and go to state 10
-    NUMBER          shift and go to state 9
+    ID              shift and go to state 5
 
-    para                           shift and go to state 8
+    method_start                   shift and go to state 4
+    method                         shift and go to state 7
+    method_append                  shift and go to state 6
 
 state 4
 
-    (0) S' -> condition_action .
+    (6) method_append -> method_start .
 
+    RPAREN          reduce using rule 6 (method_append -> method_start .)
+    ID              reduce using rule 6 (method_append -> method_start .)
+    NUMBER          reduce using rule 6 (method_append -> method_start .)
 
 
 state 5
 
-    (1) condition_action -> method . COMMA ID
+    (7) method_start -> ID . LPAREN
 
-    COMMA           shift and go to state 11
+    LPAREN          shift and go to state 8
 
 
 state 6
 
-    (6) method_start -> ID LPAREN .
+    (3) method -> method_append . para RPAREN
+    (4) method -> method_append . RPAREN
+    (5) method_append -> method_append . para COMMA
+    (8) para -> . ID
+    (9) para -> . NUMBER
 
-    RPAREN          reduce using rule 6 (method_start -> ID LPAREN .)
-    ID              reduce using rule 6 (method_start -> ID LPAREN .)
-    NUMBER          reduce using rule 6 (method_start -> ID LPAREN .)
+    RPAREN          shift and go to state 9
+    ID              shift and go to state 12
+    NUMBER          shift and go to state 11
 
+    para                           shift and go to state 10
 
 state 7
 
-    (3) method -> method_append RPAREN .
+    (1) assignment -> ID EQUALS method .
 
-    COMMA           reduce using rule 3 (method -> method_append RPAREN .)
+    $end            reduce using rule 1 (assignment -> ID EQUALS method .)
 
 
 state 8
 
-    (2) method -> method_append para . RPAREN
-    (4) method_append -> method_append para . COMMA
+    (7) method_start -> ID LPAREN .
 
-    RPAREN          shift and go to state 13
-    COMMA           shift and go to state 12
+    RPAREN          reduce using rule 7 (method_start -> ID LPAREN .)
+    ID              reduce using rule 7 (method_start -> ID LPAREN .)
+    NUMBER          reduce using rule 7 (method_start -> ID LPAREN .)
 
 
 state 9
 
-    (8) para -> NUMBER .
+    (4) method -> method_append RPAREN .
 
-    RPAREN          reduce using rule 8 (para -> NUMBER .)
-    COMMA           reduce using rule 8 (para -> NUMBER .)
+    $end            reduce using rule 4 (method -> method_append RPAREN .)
 
 
 state 10
 
-    (7) para -> ID .
+    (3) method -> method_append para . RPAREN
+    (5) method_append -> method_append para . COMMA
 
-    RPAREN          reduce using rule 7 (para -> ID .)
-    COMMA           reduce using rule 7 (para -> ID .)
+    RPAREN          shift and go to state 14
+    COMMA           shift and go to state 13
 
 
 state 11
 
-    (1) condition_action -> method COMMA . ID
+    (9) para -> NUMBER .
 
-    ID              shift and go to state 14
+    RPAREN          reduce using rule 9 (para -> NUMBER .)
+    COMMA           reduce using rule 9 (para -> NUMBER .)
 
 
 state 12
 
-    (4) method_append -> method_append para COMMA .
+    (8) para -> ID .
 
-    RPAREN          reduce using rule 4 (method_append -> method_append para COMMA .)
-    ID              reduce using rule 4 (method_append -> method_append para COMMA .)
-    NUMBER          reduce using rule 4 (method_append -> method_append para COMMA .)
+    RPAREN          reduce using rule 8 (para -> ID .)
+    COMMA           reduce using rule 8 (para -> ID .)
 
 
 state 13
 
-    (2) method -> method_append para RPAREN .
+    (5) method_append -> method_append para COMMA .
 
-    COMMA           reduce using rule 2 (method -> method_append para RPAREN .)
+    RPAREN          reduce using rule 5 (method_append -> method_append para COMMA .)
+    ID              reduce using rule 5 (method_append -> method_append para COMMA .)
+    NUMBER          reduce using rule 5 (method_append -> method_append para COMMA .)
 
 
 state 14
 
-    (1) condition_action -> method COMMA ID .
+    (3) method -> method_append para RPAREN .
 
-    $end            reduce using rule 1 (condition_action -> method COMMA ID .)
+    $end            reduce using rule 3 (method -> method_append para RPAREN .)
 

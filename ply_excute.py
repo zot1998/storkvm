@@ -8,7 +8,8 @@ curdir = os.path.dirname(os.path.abspath(__file__))
 if curdir not in sys.path:
     sys.path.append(curdir)
 
-import ply_rule
+import ply_lex
+import ply_yacc
 from ply_object import object, NUMBER, METHOD, object
 from ply_object import PlyException
 
@@ -23,8 +24,8 @@ class ply_excute():
     def __init__(self, context):
         self._var = {} # 只支持全局变量
         self._symbols = {}
-        self._lexer = lex.lex(module=ply_rule)
-        self._yacer = yacc.yacc(module=ply_rule)
+        self._lexer = lex.lex(module=ply_lex)
+        self._yacer = yacc.yacc(module=ply_yacc)
 
         self._context = context.split(';')
 

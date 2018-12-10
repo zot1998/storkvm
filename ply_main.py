@@ -9,7 +9,7 @@ if curdir not in sys.path:
 
 
 #context = ''' A := MA(CLOSE,5);B := MA(CLOSE,5);CROSS(A, B), BP;'''
-context = '''A:=MA(C,5);CROSS(A, B), BD'''
+context = '''A := MA(C,5)'''
 
 cc = ply_excute(context)
 cc.run()
