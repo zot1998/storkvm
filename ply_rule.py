@@ -20,7 +20,7 @@ tokens_reserved ={
 tokens = [
     'ID',
 #    'METHOD',
-    'EQUAL1',
+    'EQUALS',
     'NUMBER',
     'LPAREN',
     'RPAREN',
@@ -38,7 +38,7 @@ tokens = [
 
 
 # Tokens
-t_EQUAL1 = r':='
+t_EQUALS = r':='
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
 t_PLUS   = r'\+'
@@ -86,61 +86,66 @@ literals = ['=', '+', '-', '*', '/', '(', ')',',']
 
 precedence = (
     #('nonassoc', 'LESSTHAN', 'GREATERTHAN'),
-    ('left', 'EQUAL1'),
+    #('left', 'EQUALS'),
     ('left', 'AND', 'OR'),    
     ('left', 'PLUS', 'MINUS'),
     ('left', 'TIMES', 'DIVIDE'),
     ('left', 'LPAREN', 'RPAREN'),
     )
-# XXX(a,b)
-def p_expression_method(p):
-    '''expression : expression  ID     RPAREN
-                 | expression NUMBER   RPAREN
-                 | expression ID      COMMA
-                 | expression NUMBER  COMMA
-                 | expression RPAREN
-                 | ID LPAREN
-    '''
 
-    if  len(p) == 3:
+#def p_assignment_1(p):
+#    'assignment : ID EQUALS method'
+#    p[0] = AST(':=', p[1], p[3])
+
+
+def p_condition_action_1(p):
+    '''
+    condition_action : method COMMA ID
+    '''
+    p[0] = AST('condition_action', p[1], p[3])
+
+
+
+def p_expression_method(p):
+    '''
+    method  :   method_append para RPAREN            
+            |   method_append RPAREN                 
+
+    method_append   : method_append para COMMA
+                    | method_start
+
+    method_start    : ID LPAREN
+
+    para    : ID
+            | NUMBER
+    '''    
+    if len(p) == 2:
+        p[0] = p[1]
+    elif len(p) == 3:
         if p[2] == '(':
-            ast = AST('FUNC', p[1], None)
+            ast = AST('METHOD', p[1], None)
             p[0] = {
                 'root':ast,
                 'current':ast,
-            }
-
-            print("####_(")
+            }            
         elif p[2] == ')':
             p[0] = p[1]['root']
-            print("####_)")
     elif len(p) == 4:
-        if p[3] == ',':
-            print("####_,")
-            ast = AST('PARA', p[2], None)
+        if p[3] == ',':            
+            ast = AST(',', p[2], None)
 
             p[1]['current'].setright(ast)
             p[1]['current'] = ast
             p[0] = p[1]
-
-        elif p[3] == ')':
-            print("####3:" + p[2].getname())
+        elif p[3] == ')':            
             p[1]['current'].setright(p[2])
-            p[0] = p[1]['root']
-            print("####_)")
+            p[0] = p[1]['root']    
 
 
-
-
-
-def p_assignment_equal1(p):
-    '''assignment : ID EQUAL1 expression'''
-    print("AST :=----{},{}".format(type(p[1]), type(p[3])))
-    p[0] = AST(':=', p[1], p[3])
 
 def p_error(p):
     if p:
-        print(" *** Syntax error at (line:{},pos:{}, error:{})".format(p.lineno, p.lexpos, p.value))
+        print(" *** Syntax error at [line {} pos {} error '{}']".format(p.lineno, p.lexpos, p.value))
     else:
         print(" *** Syntax error at EOF")
 

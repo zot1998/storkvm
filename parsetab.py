@@ -5,9 +5,9 @@ _tabversion = '3.2'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'Y\x11y@)\xea\x1e\xc7P\xe6\xab\x17t\x9f\xa9\xab'
+_lr_signature = 'leftANDORleftPLUSMINUSleftTIMESDIVIDEleftLPARENRPARENID EQUALS NUMBER LPAREN RPAREN PLUS MINUS TIMES DIVIDE DOT AND OR COMMA COMMENT SEMICOLON ELSE IF\n    condition_action : method COMMA ID\n    \n    method  :   method_append para RPAREN            \n            |   method_append RPAREN                 \n\n    method_append   : method_append para COMMA\n                    | method_start\n\n    method_start    : ID LPAREN\n\n    para    : ID\n            | NUMBER\n    '
     
-_lr_action_items = {'RPAREN':([1,3,4,5,6,7,8,9,10,],[3,-5,7,9,-6,-1,-3,-2,-4,]),'NUMBER':([1,3,6,7,8,9,10,],[5,-5,-6,-1,-3,-2,-4,]),'COMMA':([4,5,],[8,10,]),'LPAREN':([2,],[6,]),'ID':([0,1,3,6,7,8,9,10,],[2,4,-5,-6,-1,-3,-2,-4,]),'$end':([1,3,6,7,8,9,10,],[0,-5,-6,-1,-3,-2,-4,]),}
+_lr_action_items = {'RPAREN':([1,3,6,8,9,10,12,],[-5,7,-6,13,-8,-7,-4,]),'NUMBER':([1,3,6,12,],[-5,9,-6,-4,]),'COMMA':([5,7,8,9,10,13,],[11,-3,12,-8,-7,-2,]),'LPAREN':([2,],[6,]),'ID':([0,1,3,6,11,12,],[2,-5,10,-6,14,-4,]),'$end':([4,14,],[0,-1,]),}
 
 _lr_action = { }
 for _k, _v in _lr_action_items.items():
@@ -16,7 +16,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'expression':([0,],[1,]),}
+_lr_goto_items = {'method_start':([0,],[1,]),'condition_action':([0,],[4,]),'method':([0,],[5,]),'para':([3,],[8,]),'method_append':([0,],[3,]),}
 
 _lr_goto = { }
 for _k, _v in _lr_goto_items.items():
@@ -25,12 +25,13 @@ for _k, _v in _lr_goto_items.items():
        _lr_goto[_x][_k] = _y
 del _lr_goto_items
 _lr_productions = [
-  ("S' -> expression","S'",1,None,None,None),
-  ('expression -> expression ID RPAREN','expression',3,'p_expression_method','/root/share/storkvm/storkvm/ply_rule.py',97),
-  ('expression -> expression NUMBER RPAREN','expression',3,'p_expression_method','/root/share/storkvm/storkvm/ply_rule.py',98),
-  ('expression -> expression ID COMMA','expression',3,'p_expression_method','/root/share/storkvm/storkvm/ply_rule.py',99),
-  ('expression -> expression NUMBER COMMA','expression',3,'p_expression_method','/root/share/storkvm/storkvm/ply_rule.py',100),
-  ('expression -> expression RPAREN','expression',2,'p_expression_method','/root/share/storkvm/storkvm/ply_rule.py',101),
-  ('expression -> ID LPAREN','expression',2,'p_expression_method','/root/share/storkvm/storkvm/ply_rule.py',102),
-  ('assignment -> ID EQUAL1 expression','assignment',3,'p_assignment_equal1','/root/share/storkvm/storkvm/ply_rule.py',137),
+  ("S' -> condition_action","S'",1,None,None,None),
+  ('condition_action -> method COMMA ID','condition_action',3,'p_condition_action_1','/mnt/git/ply_rule.py',103),
+  ('method -> method_append para RPAREN','method',3,'p_expression_method','/mnt/git/ply_rule.py',111),
+  ('method -> method_append RPAREN','method',2,'p_expression_method','/mnt/git/ply_rule.py',112),
+  ('method_append -> method_append para COMMA','method_append',3,'p_expression_method','/mnt/git/ply_rule.py',114),
+  ('method_append -> method_start','method_append',1,'p_expression_method','/mnt/git/ply_rule.py',115),
+  ('method_start -> ID LPAREN','method_start',2,'p_expression_method','/mnt/git/ply_rule.py',117),
+  ('para -> ID','para',1,'p_expression_method','/mnt/git/ply_rule.py',119),
+  ('para -> NUMBER','para',1,'p_expression_method','/mnt/git/ply_rule.py',120),
 ]

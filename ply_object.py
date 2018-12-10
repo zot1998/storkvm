@@ -82,19 +82,23 @@ class AST(object):
     def setright(self, right):
         self._right = right
 
-    def show(self):
-        print("OP :" + str(self._op))
-        if isinstance(self._left, AST):
-            print("----L=ast")
-            self._left.show()
-        elif self._left:
-            print("L  :" + self._left.getname())
+    def show(self, ent = 0):
+        spaces = ' ' * ent
+        print(spaces + "OP :" + str(self._op))
 
+        print(spaces + 'L:'),
+        if isinstance(self._left, AST):
+            print("AST")
+            self._left.show(ent + 2)
+        elif self._left:
+            print(self._left.getname())
+
+        print(spaces + 'R:'),
         if isinstance(self._right, AST):
-            print("----=ast")
-            self._right.show()
+            print("AST")
+            self._right.show(ent + 2)
         elif self._right:
-            print("R  :" + self._right.getname())
+            print(self._right.getname())
 
 
 
